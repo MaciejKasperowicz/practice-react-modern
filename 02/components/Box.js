@@ -1,16 +1,11 @@
+/* eslint-disable arrow-parens */
+/* eslint-disable react/function-component-definition */
 // ./src/components/Box.js
 import React from 'react';
-import PropTypes from 'prop-types';
 import Div from './Div';
 
-const Box = props => {
-    const { text } = props;
-
-    return <Div title={text} />;
-};
-
-Box.propTypes = {
-    text: PropTypes.string.isRequired,
-};
+const Box = () => (
+    <Div />
+)
 
 export default Box;

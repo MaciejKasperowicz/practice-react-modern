@@ -1,6 +1,6 @@
 {
     "parser": "@babel/eslint-parser",
-    "extends": ["airbnb", "airbnb/hooks"],
+    "extends": ["airbnb", "airbnb/hooks", "prettier"],
     "rules": {
         "react/jsx-filename-extension": [1, {
         "extensions": [".js"]
@@ -10,7 +10,7 @@
         "react/jsx-indent-props": ["error", 4],
         "react/state-in-constructor": [0, "never"],
         "func-names": ["error", "as-needed"],
-        "max-len": ["error", {"code": 100}]
+        "max-len": ["error", {"code": 120}]
         
         },
         "globals": {
