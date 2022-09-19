@@ -15,28 +15,31 @@ const ContactForm = () => {
         firstName: "",
         lastName: "",
         email: "",
-        // number: "",
-        // topic: "",
-        // message: ""
+        number: "",
+        topic: "",
+        message: ""
     }
 
     const reducer = (state, { name, value }) => {
-        // console.log(state);
         return { ...state, [name]: value }
     }
 
     const [state, dispatch] = useReducer(reducer, initMessage);
 
-    // const { firstName, lastName, email, number, topic, message } = state;
-    const { firstName, lastName, email } = state;
+    const { firstName, lastName, email, number, topic, message } = state;
 
-    const initMessageError = {
-        firstNameError: null,
-        lastNameError: null,
-        emailError: null,
-        // numberError: null,
-        // topicError: null,
-        // messageError: null
+
+    const validateInputContentByLength = (content, minContentLength) => {
+        if (content.length >= minContentLength) return true
+        return false
+    }
+
+    const setError = (stateToUpdate, fieldToUpdate, errorInfo) => {
+        return { ...stateToUpdate, [`${fieldToUpdate}Error`]: errorInfo }
+    }
+
+    const unsetError = (stateToUpdate, fieldToUpdate) => {
+        return { ...stateToUpdate, [`${fieldToUpdate}Error`]: null }
     }
 
     const validateEmail = (emailAddress) => {
@@ -44,27 +47,53 @@ const ContactForm = () => {
         return re.test(emailAddress)
     }
 
-    // const validateNumber = (phoneNumber) =>{
-    //     const re = /(?<!\w)(\(?(\+|00)?48\)?)?[ -]?\d{3}[ -]?\d{3}[ -]?\d{3}(?!\w)/
-    //     return re.test(phoneNumber)
-    // }
+    const validateNumber = (phoneNumber) => {
+        const re = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{3})$/;
+        return re.test(phoneNumber)
+    }
 
     const errorReducer = (errorState, { key, stateValue }) => {
-        console.log(errorState);
-        console.log({ key });
-        // return { ...errorState, [`${field}Error`]: "dupa" }
+
         switch (key) {
             case "firstName":
-                if (stateValue.length < 2) return { ...errorState, [`${key}Error`]: "Imię musi zawierać minimum 2 znaki." }
-                return { ...errorState, [`${key}Error`]: null }
+                {
+                    const minValueLength = 2;
+                    const isValid = validateInputContentByLength(stateValue, minValueLength)
+                    if (!isValid) return setError(errorState, key, `Imię musi zawierać minimum ${minValueLength} znaki.`)
+                    return unsetError(errorState, key)
+                }
             case "lastName":
-                if (stateValue.length < 2) return { ...errorState, [`${key}Error`]: "Nazwisko musi zawierać minimum 2 znaki." }
-                return { ...errorState, [`${key}Error`]: null }
+                {
+                    const minValueLength = 2;
+                    const isValid = validateInputContentByLength(stateValue, minValueLength)
+                    if (!isValid) return setError(errorState, key, `Nazwisko musi zawierać minimum ${minValueLength} znaki.`)
+                    return unsetError(errorState, key)
+                }
             case "email":
                 {
-                    const isValidEmail = validateEmail(stateValue);
-                    if (!isValidEmail) return { ...errorState, [`${key}Error`]: "Wpisz poprawny adres email, zawierający @." }
-                    return { ...errorState, [`${key}Error`]: null }
+                    const isValid = validateEmail(stateValue);
+                    if (!isValid) return setError(errorState, key, "Wpisz poprawny adres email, zawierający @.")
+                    return unsetError(errorState, key)
+                }
+            case "number":
+                {
+                    const isValid = validateNumber(stateValue);
+                    if (!isValid) return setError(errorState, key, "Wpisz poprawny numer telefonu, np: 123123123.")
+                    return unsetError(errorState, key)
+                }
+            case "topic":
+                {
+                    const minValueLength = 3;
+                    const isValid = validateInputContentByLength(stateValue, minValueLength)
+                    if (!isValid) return setError(errorState, key, `Temat musi zawierać minimum ${minValueLength} znaki.`)
+                    return unsetError(errorState, key)
+                }
+            case "message":
+                {
+                    const minValueLength = 4;
+                    const isValid = validateInputContentByLength(stateValue, minValueLength)
+                    if (!isValid) return setError(errorState, key, `Wiadomość musi zawierać minimum ${minValueLength} znaki.`)
+                    return unsetError(errorState, key)
                 }
             default:
                 break;
@@ -72,16 +101,21 @@ const ContactForm = () => {
 
     }
 
+    const initMessageError = {
+        firstNameError: null,
+        lastNameError: null,
+        emailError: null,
+        numberError: null,
+        topicError: null,
+        messageError: null
+    }
+
     const [errorState, errorDispatch] = useReducer(errorReducer, initMessageError);
 
-    // const { firstNameError, lastNameError, emailError, numberError, topicError, messageError } = errorState;
-    const { firstNameError, lastNameError, emailError } = errorState;
-
-
+    const { firstNameError, lastNameError, emailError, numberError, topicError, messageError } = errorState;
 
     const addNewMessage = e => {
         e.preventDefault();
-        console.log(state);
         Object.keys(state).forEach(key => {
             errorDispatch({ key, stateValue: state[key] })
         })
@@ -111,9 +145,9 @@ const ContactForm = () => {
                         onChange={e => dispatch(e.target)}
                     />
                 </div>
-                {/* <div>
+                <div>
                     <label>Numer telefonu:</label>
-                    <input type="number" name="number"
+                    <input type="text" name="number"
                         value={number}
                         onChange={e => dispatch(e.target)}
                     />
@@ -131,20 +165,20 @@ const ContactForm = () => {
                         value={message}
                         onChange={e => dispatch(e.target)}
                     />
-                </div> */}
+                </div>
                 <div>
                     <input type="submit" />
                 </div>
             </form>
 
-            <div>
-                <h4>{firstNameError}</h4>
-                <h4>{lastNameError}</h4>
-                <h4>{emailError}</h4>
-                {/* <h4>{numberError}</h4>
-                <h4>{topicError}</h4>
-                <p>{messageError}</p> */}
-            </div>
+            <ul style={{ listStyle: "none", color: "red" }}>
+                <li>{firstNameError}</li>
+                <li>{lastNameError}</li>
+                <li>{emailError}</li>
+                <li>{numberError}</li>
+                <li>{topicError}</li>
+                <li>{messageError}</li>
+            </ul>
         </div>
 
 
